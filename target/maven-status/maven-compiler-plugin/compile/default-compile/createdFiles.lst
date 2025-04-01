@@ -1,0 +1,7 @@
+com/unicorn/manager/exception/ErrorResponse.class
+com/unicorn/manager/model/Unicorn.class
+com/unicorn/manager/exception/GlobalExceptionHandler.class
+com/unicorn/manager/controller/UnicornController.class
+com/unicorn/manager/repository/UnicornRepository.class
+com/unicorn/manager/UnicornManagerApplication.class
+com/unicorn/manager/service/UnicornService.class

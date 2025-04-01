@@ -1,0 +1,4 @@
+/home/ec2-user/qctcli/UnicornDemo/src/test/java/com/unicorn/manager/UnicornManagerApplicationTests.java
+/home/ec2-user/qctcli/UnicornDemo/src/test/java/com/unicorn/manager/service/UnicornServiceTest.java
+/home/ec2-user/qctcli/UnicornDemo/src/test/java/com/unicorn/manager/repository/UnicornRepositoryTest.java
+/home/ec2-user/qctcli/UnicornDemo/src/test/java/com/unicorn/manager/controller/UnicornControllerTest.java

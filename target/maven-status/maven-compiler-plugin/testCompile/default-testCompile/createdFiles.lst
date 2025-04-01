@@ -1,0 +1,4 @@
+com/unicorn/manager/controller/UnicornControllerTest.class
+com/unicorn/manager/service/UnicornServiceTest.class
+com/unicorn/manager/repository/UnicornRepositoryTest.class
+com/unicorn/manager/UnicornManagerApplicationTests.class
