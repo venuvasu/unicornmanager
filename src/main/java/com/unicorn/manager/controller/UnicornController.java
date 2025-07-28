@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.math.BigDecimal;
 import java.util.List;
 
 @RestController
@@ -66,6 +67,32 @@ public class UnicornController {
     @GetMapping("/search")
     public ResponseEntity<List<Unicorn>> searchUnicorns(@RequestParam String name) {
         List<Unicorn> unicorns = unicornService.findUnicornsByNameContaining(name);
+        return new ResponseEntity<>(unicorns, HttpStatus.OK);
+    }
+
+    @GetMapping("/price/{price}")
+    public ResponseEntity<List<Unicorn>> getUnicornsByPrice(@PathVariable BigDecimal price) {
+        List<Unicorn> unicorns = unicornService.findUnicornsByPrice(price);
+        return new ResponseEntity<>(unicorns, HttpStatus.OK);
+    }
+
+    @GetMapping("/price/less-than/{price}")
+    public ResponseEntity<List<Unicorn>> getUnicornsByPriceLessThan(@PathVariable BigDecimal price) {
+        List<Unicorn> unicorns = unicornService.findUnicornsByPriceLessThan(price);
+        return new ResponseEntity<>(unicorns, HttpStatus.OK);
+    }
+
+    @GetMapping("/price/greater-than/{price}")
+    public ResponseEntity<List<Unicorn>> getUnicornsByPriceGreaterThan(@PathVariable BigDecimal price) {
+        List<Unicorn> unicorns = unicornService.findUnicornsByPriceGreaterThan(price);
+        return new ResponseEntity<>(unicorns, HttpStatus.OK);
+    }
+
+    @GetMapping("/price/range")
+    public ResponseEntity<List<Unicorn>> getUnicornsByPriceRange(
+            @RequestParam BigDecimal minPrice, 
+            @RequestParam BigDecimal maxPrice) {
+        List<Unicorn> unicorns = unicornService.findUnicornsByPriceRange(minPrice, maxPrice);
         return new ResponseEntity<>(unicorns, HttpStatus.OK);
     }
 }
