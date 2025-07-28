@@ -9,6 +9,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import javax.persistence.EntityNotFoundException;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
@@ -38,6 +39,7 @@ class UnicornServiceTest {
         unicorn.setColor("Pink");
         unicorn.setAge(5);
         unicorn.setMagicalAbility("Rainbow Generation");
+        unicorn.setPrice(new BigDecimal("1500.00"));
         unicorn.setBirthDate(LocalDate.of(2020, 1, 1));
     }
 
@@ -103,6 +105,7 @@ class UnicornServiceTest {
         updatedUnicorn.setColor("Purple");
         updatedUnicorn.setAge(6);
         updatedUnicorn.setMagicalAbility("Starlight Creation");
+        updatedUnicorn.setPrice(new BigDecimal("2000.00"));
         updatedUnicorn.setBirthDate(LocalDate.of(2019, 5, 10));
 
         when(unicornRepository.findById(1L)).thenReturn(Optional.of(unicorn));
@@ -117,6 +120,7 @@ class UnicornServiceTest {
         assertEquals("Purple", result.getColor());
         assertEquals(6, result.getAge());
         assertEquals("Starlight Creation", result.getMagicalAbility());
+        assertEquals(new BigDecimal("2000.00"), result.getPrice());
         assertEquals(LocalDate.of(2019, 5, 10), result.getBirthDate());
         verify(unicornRepository, times(1)).findById(1L);
         verify(unicornRepository, times(1)).save(any(Unicorn.class));
@@ -179,5 +183,71 @@ class UnicornServiceTest {
         assertEquals(1, result.size());
         assertTrue(result.get(0).getName().contains("Spark"));
         verify(unicornRepository, times(1)).findByNameContainingIgnoreCase("Spark");
+    }
+
+    @Test
+    void findUnicornsByPrice_ShouldReturnMatchingUnicorns() {
+        // Arrange
+        BigDecimal targetPrice = new BigDecimal("1500.00");
+        List<Unicorn> unicorns = Arrays.asList(unicorn);
+        when(unicornRepository.findByPrice(targetPrice)).thenReturn(unicorns);
+
+        // Act
+        List<Unicorn> result = unicornService.findUnicornsByPrice(targetPrice);
+
+        // Assert
+        assertEquals(1, result.size());
+        assertEquals(targetPrice, result.get(0).getPrice());
+        verify(unicornRepository, times(1)).findByPrice(targetPrice);
+    }
+
+    @Test
+    void findUnicornsByPriceLessThan_ShouldReturnMatchingUnicorns() {
+        // Arrange
+        BigDecimal priceLimit = new BigDecimal("2000.00");
+        List<Unicorn> unicorns = Arrays.asList(unicorn);
+        when(unicornRepository.findByPriceLessThan(priceLimit)).thenReturn(unicorns);
+
+        // Act
+        List<Unicorn> result = unicornService.findUnicornsByPriceLessThan(priceLimit);
+
+        // Assert
+        assertEquals(1, result.size());
+        assertTrue(result.get(0).getPrice().compareTo(priceLimit) < 0);
+        verify(unicornRepository, times(1)).findByPriceLessThan(priceLimit);
+    }
+
+    @Test
+    void findUnicornsByPriceGreaterThan_ShouldReturnMatchingUnicorns() {
+        // Arrange
+        BigDecimal priceThreshold = new BigDecimal("1000.00");
+        List<Unicorn> unicorns = Arrays.asList(unicorn);
+        when(unicornRepository.findByPriceGreaterThan(priceThreshold)).thenReturn(unicorns);
+
+        // Act
+        List<Unicorn> result = unicornService.findUnicornsByPriceGreaterThan(priceThreshold);
+
+        // Assert
+        assertEquals(1, result.size());
+        assertTrue(result.get(0).getPrice().compareTo(priceThreshold) > 0);
+        verify(unicornRepository, times(1)).findByPriceGreaterThan(priceThreshold);
+    }
+
+    @Test
+    void findUnicornsByPriceRange_ShouldReturnMatchingUnicorns() {
+        // Arrange
+        BigDecimal minPrice = new BigDecimal("1000.00");
+        BigDecimal maxPrice = new BigDecimal("2000.00");
+        List<Unicorn> unicorns = Arrays.asList(unicorn);
+        when(unicornRepository.findByPriceBetween(minPrice, maxPrice)).thenReturn(unicorns);
+
+        // Act
+        List<Unicorn> result = unicornService.findUnicornsByPriceRange(minPrice, maxPrice);
+
+        // Assert
+        assertEquals(1, result.size());
+        assertTrue(result.get(0).getPrice().compareTo(minPrice) >= 0);
+        assertTrue(result.get(0).getPrice().compareTo(maxPrice) <= 0);
+        verify(unicornRepository, times(1)).findByPriceBetween(minPrice, maxPrice);
     }
 }

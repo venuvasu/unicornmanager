@@ -13,6 +13,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import javax.persistence.EntityNotFoundException;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
@@ -44,6 +45,7 @@ class UnicornControllerTest {
         unicorn.setColor("Pink");
         unicorn.setAge(5);
         unicorn.setMagicalAbility("Rainbow Generation");
+        unicorn.setPrice(new BigDecimal("1500.00"));
         unicorn.setBirthDate(LocalDate.of(2020, 1, 1));
 
         objectMapper = new ObjectMapper();
@@ -53,7 +55,7 @@ class UnicornControllerTest {
     @Test
     void getAllUnicorns_ShouldReturnAllUnicorns() throws Exception {
         // Arrange
-        List<Unicorn> unicorns = Arrays.asList(unicorn, new Unicorn(2L, "Glimmer", "Blue", 3, "Teleportation", LocalDate.of(2022, 3, 15)));
+        List<Unicorn> unicorns = Arrays.asList(unicorn, new Unicorn(2L, "Glimmer", "Blue", 3, "Teleportation", new BigDecimal("1200.00"), LocalDate.of(2022, 3, 15)));
         when(unicornService.getAllUnicorns()).thenReturn(unicorns);
 
         // Act & Assert
@@ -114,7 +116,7 @@ class UnicornControllerTest {
     @Test
     void updateUnicorn_WithValidData_ShouldReturnUpdatedUnicorn() throws Exception {
         // Arrange
-        Unicorn updatedUnicorn = new Unicorn(1L, "Glitter", "Purple", 6, "Starlight Creation", LocalDate.of(2019, 5, 10));
+        Unicorn updatedUnicorn = new Unicorn(1L, "Glitter", "Purple", 6, "Starlight Creation", new BigDecimal("2000.00"), LocalDate.of(2019, 5, 10));
         when(unicornService.updateUnicorn(eq(1L), any(Unicorn.class))).thenReturn(updatedUnicorn);
 
         // Act & Assert
@@ -185,5 +187,67 @@ class UnicornControllerTest {
                 .andExpect(jsonPath("$[0].name", containsString("Spark")));
 
         verify(unicornService, times(1)).findUnicornsByNameContaining("Spark");
+    }
+
+    @Test
+    void getUnicornsByPrice_ShouldReturnMatchingUnicorns() throws Exception {
+        // Arrange
+        List<Unicorn> unicorns = Arrays.asList(unicorn);
+        when(unicornService.findUnicornsByPrice(new BigDecimal("1500.00"))).thenReturn(unicorns);
+
+        // Act & Assert
+        mockMvc.perform(get("/api/unicorns/price/1500.00"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$[0].price", is(1500.00)));
+
+        verify(unicornService, times(1)).findUnicornsByPrice(new BigDecimal("1500.00"));
+    }
+
+    @Test
+    void getUnicornsByPriceLessThan_ShouldReturnMatchingUnicorns() throws Exception {
+        // Arrange
+        List<Unicorn> unicorns = Arrays.asList(unicorn);
+        when(unicornService.findUnicornsByPriceLessThan(new BigDecimal("2000.00"))).thenReturn(unicorns);
+
+        // Act & Assert
+        mockMvc.perform(get("/api/unicorns/price/less-than/2000.00"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$[0].price", lessThan(2000.00)));
+
+        verify(unicornService, times(1)).findUnicornsByPriceLessThan(new BigDecimal("2000.00"));
+    }
+
+    @Test
+    void getUnicornsByPriceGreaterThan_ShouldReturnMatchingUnicorns() throws Exception {
+        // Arrange
+        List<Unicorn> unicorns = Arrays.asList(unicorn);
+        when(unicornService.findUnicornsByPriceGreaterThan(new BigDecimal("1000.00"))).thenReturn(unicorns);
+
+        // Act & Assert
+        mockMvc.perform(get("/api/unicorns/price/greater-than/1000.00"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$[0].price", greaterThan(1000.00)));
+
+        verify(unicornService, times(1)).findUnicornsByPriceGreaterThan(new BigDecimal("1000.00"));
+    }
+
+    @Test
+    void getUnicornsByPriceRange_ShouldReturnMatchingUnicorns() throws Exception {
+        // Arrange
+        List<Unicorn> unicorns = Arrays.asList(unicorn);
+        when(unicornService.findUnicornsByPriceRange(new BigDecimal("1000.00"), new BigDecimal("2000.00"))).thenReturn(unicorns);
+
+        // Act & Assert
+        mockMvc.perform(get("/api/unicorns/price/range")
+                .param("minPrice", "1000.00")
+                .param("maxPrice", "2000.00"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$[0].price", allOf(greaterThanOrEqualTo(1000.00), lessThanOrEqualTo(2000.00))));
+
+        verify(unicornService, times(1)).findUnicornsByPriceRange(new BigDecimal("1000.00"), new BigDecimal("2000.00"));
     }
 }
